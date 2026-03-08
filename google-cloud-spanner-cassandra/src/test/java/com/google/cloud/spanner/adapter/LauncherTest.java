@@ -113,6 +113,8 @@ public class LauncherTest {
     assertThat(options1.getInetAddress()).isEqualTo(InetAddress.getByName("127.0.0.1"));
     assertThat(options1.getSpannerEndpoint()).isEqualTo("spanner.googleapis.com:443");
     assertThat(options1.usePlainText()).isFalse();
+    assertThat(options1.getClientCertificate()).isNull();
+    assertThat(options1.getClientKey()).isNull();
 
     AdapterOptions options2 = adapterOptionsCaptor.getAllValues().get(1);
     assertThat(options2.getDatabaseUri())
@@ -121,6 +123,8 @@ public class LauncherTest {
     assertThat(options2.getInetAddress()).isEqualTo(InetAddress.getByName("0.0.0.0"));
     assertThat(options2.getSpannerEndpoint()).isEqualTo("spanner.googleapis.com:443");
     assertThat(options2.usePlainText()).isFalse();
+    assertThat(options1.getClientCertificate()).isNull();
+    assertThat(options1.getClientKey()).isNull();
   }
 
   @Test
@@ -183,6 +187,8 @@ public class LauncherTest {
     assertThat(options.getMaxCommitDelay().get().toMillis()).isEqualTo(100);
     assertThat(options.getSpannerEndpoint()).isEqualTo("localhost:15000");
     assertThat(options.usePlainText()).isTrue();
+    assertThat(options.getClientCertificate()).isNull();
+    assertThat(options.getClientKey()).isNull();
   }
 
   @Test
@@ -228,5 +234,41 @@ public class LauncherTest {
 
     verify(mockAdapter, times(1)).stop();
     verify(mockHealthCheckServer, times(1)).stop();
+  }
+
+  @Test
+  public void testRun_withUseClientCertMode_startsAdapterWithOptions() throws Exception {
+    Map<String, String> properties = new HashMap<>();
+    properties.put("databaseUri", DEFAULT_DATABASE_URI);
+    properties.put("host", "127.0.0.1");
+    properties.put("port", "9042");
+    properties.put("numGrpcChannels", "8");
+    properties.put("maxCommitDelayMillis", "100");
+    properties.put("enableBuiltInMetrics", "true");
+    properties.put("healthCheckPort", "8080");
+    properties.put("experimentalHost", "localhost:15000");
+    properties.put("clientCertificate", "/path/to/client.crt");
+    properties.put("clientKey", "/path/to/client.key.pkcs8");
+    LauncherConfig config = LauncherConfig.fromProperties(properties);
+
+    launcher.run(config);
+
+    verify(mockAdapterFactory, times(1)).createAdapter(adapterOptionsCaptor.capture());
+    verify(mockAdapterFactory, times(1)).createHealthCheckServer(any(), eq(8080));
+    verify(mockAdapter, times(1)).start();
+    verify(mockHealthCheckServer).start();
+    verify(mockHealthCheckServer).setReady(true);
+
+    AdapterOptions options = adapterOptionsCaptor.getValue();
+    assertThat(options.getDatabaseUri()).isEqualTo(DEFAULT_DATABASE_URI);
+    assertThat(options.getTcpPort()).isEqualTo(9042);
+    assertThat(options.getInetAddress()).isEqualTo(InetAddress.getByName("127.0.0.1"));
+    assertThat(options.getNumGrpcChannels()).isEqualTo(8);
+    assertThat(options.getMaxCommitDelay().get().toMillis()).isEqualTo(100);
+    assertThat(options.getSpannerEndpoint()).isEqualTo("localhost:15000");
+    assertThat(options.usePlainText()).isFalse();
+    assertThat(options.getExperimentalHost()).isEqualTo("localhost:15000");
+    assertThat(options.getClientCertificate()).isEqualTo("/path/to/client.crt");
+    assertThat(options.getClientKey()).isEqualTo("/path/to/client.key.pkcs8");
   }
 }

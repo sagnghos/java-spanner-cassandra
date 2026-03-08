@@ -1,0 +1,25 @@
+# Global client configuration
+globalClientConfigs:
+  enableBuiltInMetrics: true
+  healthCheckEndpoint: "127.0.0.1:8080"
+  experimentalHost: "localhost:15000"
+  clientCertificate: "/path/to/client.crt"
+  clientKey: "/path/to/client.key.pkcs8"
+
+# List of all listeners
+listeners:
+- # Configuration for listener_1
+  name: "listener_1"
+  host: "127.0.0.1"
+  port: 9042
+  spanner:
+    databaseUri: "projects/my-project/instances/my-instance/databases/my-database"
+    numGrpcChannels: 4
+    maxCommitDelayMillis: 100
+- # Configuration for listener_2
+  name: "listener_2"
+  host: "127.0.0.2"
+  port: 9043
+  spanner:
+    databaseUri: "projects/my-project/instances/my-instance/databases/my-database-2"
+    numGrpcChannels: 8

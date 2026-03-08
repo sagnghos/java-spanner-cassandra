@@ -20,6 +20,7 @@ import com.google.cloud.spanner.adapter.configs.ConfigConstants;
 import com.google.cloud.spanner.adapter.configs.ListenerConfigs;
 import com.google.cloud.spanner.adapter.configs.UserConfigs;
 import com.google.common.base.Strings;
+import com.google.spanner.adapter.v1.DatabaseName;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -59,6 +60,9 @@ public final class LauncherConfig {
     final String globalSpannerEndpoint;
     final boolean globalEnableBuiltInMetrics;
     final boolean usePlainText;
+    final String experimentalHost;
+    final String clientCertificate;
+    final String clientKey;
     HealthCheckConfig healthCheckConfig = null;
 
     if (userConfigs.getGlobalClientConfigs() != null) {
@@ -77,10 +81,16 @@ public final class LauncherConfig {
       usePlainText =
           userConfigs.getGlobalClientConfigs().getUsePlainText() != null
               && userConfigs.getGlobalClientConfigs().getUsePlainText();
+      experimentalHost = userConfigs.getGlobalClientConfigs().getExperimentalHost();
+      clientCertificate = userConfigs.getGlobalClientConfigs().getClientCertificate();
+      clientKey = userConfigs.getGlobalClientConfigs().getClientKey();
     } else {
       globalSpannerEndpoint = ConfigConstants.DEFAULT_SPANNER_ENDPOINT;
       globalEnableBuiltInMetrics = false;
       usePlainText = false;
+      experimentalHost = null;
+      clientCertificate = null;
+      clientKey = null;
     }
 
     List<ListenerConfig> listenerConfigs = new ArrayList<>();
@@ -88,7 +98,13 @@ public final class LauncherConfig {
       validateListenerConfig(listener);
       listenerConfigs.add(
           ListenerConfig.fromListenerConfigs(
-              listener, globalSpannerEndpoint, globalEnableBuiltInMetrics, usePlainText));
+              listener,
+              globalSpannerEndpoint,
+              globalEnableBuiltInMetrics,
+              usePlainText,
+              experimentalHost,
+              clientCertificate,
+              clientKey));
     }
 
     return new LauncherConfig(listenerConfigs, healthCheckConfig);
@@ -122,6 +138,7 @@ public final class LauncherConfig {
 
 /** Encapsulates the configuration for a single Adapter listener. */
 final class ListenerConfig {
+  private static final String EXPERIMENTAL_HOST_ID = "default";
   private final String databaseUri;
   private final InetAddress hostAddress;
   private final int port;
@@ -130,6 +147,9 @@ final class ListenerConfig {
   @Nullable private final Integer maxCommitDelayMillis;
   private final boolean enableBuiltInMetrics;
   private final boolean usePlainText;
+  private final String experimentalHost;
+  private String clientCertificate;
+  private String clientKey;
 
   private ListenerConfig(Builder builder) {
     this.databaseUri = builder.databaseUri;
@@ -140,6 +160,9 @@ final class ListenerConfig {
     this.maxCommitDelayMillis = builder.maxCommitDelayMillis;
     this.enableBuiltInMetrics = builder.enableBuiltInMetrics;
     this.usePlainText = builder.usePlainText;
+    this.experimentalHost = builder.experimentalHost;
+    this.clientCertificate = builder.clientCertificate;
+    this.clientKey = builder.clientKey;
   }
 
   public String getDatabaseUri() {
@@ -175,11 +198,26 @@ final class ListenerConfig {
     return usePlainText;
   }
 
+  public String getExperimentalHost() {
+    return experimentalHost;
+  }
+
+  public String getClientCertificate() {
+    return clientCertificate;
+  }
+
+  public String getClientKey() {
+    return clientKey;
+  }
+
   static ListenerConfig fromListenerConfigs(
       ListenerConfigs listener,
       String globalSpannerEndpoint,
       boolean globalEnableBuiltInMetrics,
-      boolean usePlainText)
+      boolean usePlainText,
+      String experimentalHost,
+      String clientCertificate,
+      String clientKey)
       throws UnknownHostException {
     String host = listener.getHost() != null ? listener.getHost() : ConfigConstants.DEFAULT_HOST;
     int port = listener.getPort() != null ? listener.getPort() : ConfigConstants.DEFAULT_PORT;
@@ -197,7 +235,9 @@ final class ListenerConfig {
         .numGrpcChannels(numGrpcChannels)
         .maxCommitDelayMillis(maxCommitDelayMillis)
         .enableBuiltInMetrics(globalEnableBuiltInMetrics)
+        .setExperimentalHost(experimentalHost)
         .usePlainText(usePlainText)
+        .useClientCert(clientCertificate, clientKey)
         .build();
   }
 
@@ -225,9 +265,19 @@ final class ListenerConfig {
     boolean usePlainText =
         Boolean.parseBoolean(
             properties.getOrDefault(ConfigConstants.USE_PLAINTEXT_PROP_KEY, "false"));
+    String experimentalHost = properties.get(ConfigConstants.EXPERIMENTAL_HOST_PROP_KEY);
+    String clientCertificate = properties.get(ConfigConstants.CLIENT_CERTIFICATE_PROP_KEY);
+    String clientKey = properties.get(ConfigConstants.CLIENT_KEY_PROP_KEY);
+    String databaseUri = properties.get(ConfigConstants.DATABASE_URI_PROP_KEY);
+    if (!Strings.isNullOrEmpty(experimentalHost)) {
+      if (!DatabaseName.isParsableFrom(databaseUri)) {
+        databaseUri =
+            DatabaseName.of(EXPERIMENTAL_HOST_ID, EXPERIMENTAL_HOST_ID, databaseUri).toString();
+      }
+    }
 
     return newBuilder()
-        .databaseUri(properties.get(ConfigConstants.DATABASE_URI_PROP_KEY))
+        .databaseUri(databaseUri)
         .hostAddress(InetAddress.getByName(host))
         .port(port)
         .spannerEndpoint(spannerEndpoint)
@@ -235,6 +285,8 @@ final class ListenerConfig {
         .maxCommitDelayMillis(maxCommitDelayMillis)
         .enableBuiltInMetrics(enableBuiltInMetrics)
         .usePlainText(usePlainText)
+        .setExperimentalHost(experimentalHost)
+        .useClientCert(clientCertificate, clientKey)
         .build();
   }
 
@@ -251,6 +303,9 @@ final class ListenerConfig {
     @Nullable private Integer maxCommitDelayMillis;
     private boolean enableBuiltInMetrics;
     private boolean usePlainText;
+    private String experimentalHost;
+    private String clientCertificate;
+    private String clientKey;
 
     public Builder databaseUri(String databaseUri) {
       this.databaseUri = databaseUri;
@@ -289,6 +344,20 @@ final class ListenerConfig {
 
     public Builder usePlainText(boolean usePlainText) {
       this.usePlainText = usePlainText;
+      return this;
+    }
+
+    public Builder setExperimentalHost(String experimentalHost) {
+      this.experimentalHost = experimentalHost;
+      if (!Strings.isNullOrEmpty(experimentalHost)) {
+        this.spannerEndpoint = experimentalHost;
+      }
+      return this;
+    }
+
+    public Builder useClientCert(String clientCertificate, String clientKey) {
+      this.clientCertificate = clientCertificate;
+      this.clientKey = clientKey;
       return this;
     }
 

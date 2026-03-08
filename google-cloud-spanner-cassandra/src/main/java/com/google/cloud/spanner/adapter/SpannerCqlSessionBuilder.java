@@ -23,6 +23,7 @@ import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.auth.Credentials;
 import com.google.cloud.spanner.adapter.metrics.BuiltInMetricsProvider;
 import com.google.cloud.spanner.adapter.metrics.BuiltInMetricsRecorder;
+import com.google.common.base.Strings;
 import com.google.spanner.adapter.v1.DatabaseName;
 import io.opentelemetry.api.OpenTelemetry;
 import java.net.InetAddress;
@@ -66,6 +67,9 @@ public final class SpannerCqlSessionBuilder
   private Credentials credentials;
   private boolean useVirtualThreads;
   private boolean usePlainText;
+  private String experimentalHost;
+  private String clientCertificate = null;
+  private String clientKey = null;
 
   /**
    * Wraps the default CQL session with a SpannerCqlSession instance.
@@ -152,6 +156,26 @@ public final class SpannerCqlSessionBuilder
    */
   public SpannerCqlSessionBuilder setUsePlainText(boolean usePlainText) {
     this.usePlainText = usePlainText;
+    return this;
+  }
+
+  /** (Optional, default null) Experimental Host endpoint */
+  public SpannerCqlSessionBuilder setExperimentalHost(String experimentalHost) {
+    this.experimentalHost = experimentalHost;
+    if (!Strings.isNullOrEmpty(experimentalHost)) {
+      this.host = experimentalHost;
+    }
+    return this;
+  }
+
+  /**
+   * (Optional, default null) Enables mTLS connection to experimental host endpoint using client
+   * certificate and key This should only be used for connecting to experimental host instances.
+   */
+  public SpannerCqlSessionBuilder setClientCertificateAndKey(
+      String clientCertificate, String clientKey) {
+    this.clientCertificate = clientCertificate;
+    this.clientKey = clientKey;
     return this;
   }
 
@@ -281,6 +305,8 @@ public final class SpannerCqlSessionBuilder
             .metricsRecorder(metricsRecorder)
             .useVirtualThreads(useVirtualThreads)
             .usePlainText(usePlainText)
+            .setExperimentalHost(experimentalHost)
+            .useClientCert(clientCertificate, clientKey)
             .build();
     adapter = new Adapter(adapterOptions);
     adapter.start();

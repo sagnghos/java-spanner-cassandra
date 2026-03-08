@@ -18,6 +18,7 @@ package com.google.cloud.spanner.adapter;
 import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.auth.Credentials;
 import com.google.cloud.spanner.adapter.metrics.BuiltInMetricsRecorder;
+import com.google.common.base.Strings;
 import java.net.InetAddress;
 import java.time.Duration;
 import java.util.Optional;
@@ -41,6 +42,9 @@ class AdapterOptions {
     private BuiltInMetricsRecorder metricsRecorder;
     private boolean useVirtualThreads = false;
     private boolean usePlainText = false;
+    private String experimentalHost = null;
+    private String clientCertificate = null;
+    private String clientKey = null;
 
     /** The Cloud Spanner endpoint. */
     Builder spannerEndpoint(String spannerEndpoint) {
@@ -113,6 +117,22 @@ class AdapterOptions {
       return this;
     }
 
+    /** (Optional) Experimental host endpoint. */
+    Builder setExperimentalHost(String experimentalHost) {
+      this.experimentalHost = experimentalHost;
+      if (!Strings.isNullOrEmpty(experimentalHost)) {
+        this.spannerEndpoint = this.experimentalHost;
+      }
+      return this;
+    }
+
+    /** (Optional) Use mTLS connection to communicate with Experimental Host instance. */
+    Builder useClientCert(String clientCertificate, String clientKey) {
+      this.clientCertificate = clientCertificate;
+      this.clientKey = clientKey;
+      return this;
+    }
+
     AdapterOptions build() {
       return new AdapterOptions(this);
     }
@@ -129,6 +149,9 @@ class AdapterOptions {
   private BuiltInMetricsRecorder metricsRecorder;
   private boolean useVirtualThreads;
   private boolean usePlainText;
+  private String experimentalHost;
+  private String clientCertificate;
+  private String clientKey;
 
   private AdapterOptions(Builder builder) {
     this.spannerEndpoint = builder.spannerEndpoint;
@@ -142,6 +165,9 @@ class AdapterOptions {
     this.metricsRecorder = builder.metricsRecorder;
     this.useVirtualThreads = builder.useVirtualThreads;
     this.usePlainText = builder.usePlainText;
+    this.experimentalHost = builder.experimentalHost;
+    this.clientCertificate = builder.clientCertificate;
+    this.clientKey = builder.clientKey;
   }
 
   static Builder newBuilder() {
@@ -190,5 +216,21 @@ class AdapterOptions {
 
   boolean usePlainText() {
     return usePlainText;
+  }
+
+  String getExperimentalHost() {
+    return experimentalHost;
+  }
+
+  boolean useClientCert() {
+    return !Strings.isNullOrEmpty(clientCertificate) && !Strings.isNullOrEmpty(clientKey);
+  }
+
+  String getClientCertificate() {
+    return clientCertificate;
+  }
+
+  String getClientKey() {
+    return clientKey;
   }
 }

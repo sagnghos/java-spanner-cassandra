@@ -248,4 +248,31 @@ public class LauncherConfigParserTest {
       assertThat(thrown.getCause()).isInstanceOf(UnknownHostException.class);
     }
   }
+
+  @Test
+  public void testParse_withValidUseClientCertConfigFile() throws Exception {
+    String configFile =
+        getClass().getClassLoader().getResource("valid-useclientcert-config.yaml").getFile();
+    Map<String, String> properties = new HashMap<>();
+    properties.put("configFilePath", configFile);
+
+    LauncherConfig config = LauncherConfigParser.parse(properties);
+
+    assertThat(config.getListeners()).hasSize(2);
+    ListenerConfig listenerConfig1 = config.getListeners().get(0);
+    assertThat(listenerConfig1.getSpannerEndpoint()).isEqualTo("localhost:15000");
+    assertThat(listenerConfig1.usePlainText()).isFalse();
+    assertThat(listenerConfig1.getClientCertificate()).isEqualTo("/path/to/client.crt");
+    assertThat(listenerConfig1.getClientKey()).isEqualTo("/path/to/client.key.pkcs8");
+
+    ListenerConfig listenerConfig2 = config.getListeners().get(1);
+    assertThat(listenerConfig2.getDatabaseUri())
+        .isEqualTo("projects/my-project/instances/my-instance/databases/my-database-2");
+    assertThat(listenerConfig2.getPort()).isEqualTo(9043);
+    assertThat(listenerConfig2.getSpannerEndpoint()).isEqualTo("localhost:15000");
+    assertThat(listenerConfig2.usePlainText()).isFalse();
+    assertThat(listenerConfig1.getExperimentalHost()).isEqualTo("localhost:15000");
+    assertThat(listenerConfig1.getClientCertificate()).isEqualTo("/path/to/client.crt");
+    assertThat(listenerConfig1.getClientKey()).isEqualTo("/path/to/client.key.pkcs8");
+  }
 }

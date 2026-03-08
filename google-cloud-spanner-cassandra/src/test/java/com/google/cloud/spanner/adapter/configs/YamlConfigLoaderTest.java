@@ -169,4 +169,30 @@ public class YamlConfigLoaderTest {
       assertThat(userConfigs.getGlobalClientConfigs()).isNotNull();
     }
   }
+
+  @Test
+  public void testLoad_validUseClientCertYamlFile_parsesCorrectly() throws IOException {
+    try (InputStream inputStream =
+        getClass().getClassLoader().getResourceAsStream("valid-useclientcert-config.yaml")) {
+      UserConfigs userConfigs = YamlConfigLoader.load(inputStream);
+
+      assertThat(userConfigs).isNotNull();
+      assertThat(userConfigs.getGlobalClientConfigs()).isNotNull();
+      assertThat(userConfigs.getGlobalClientConfigs().getExperimentalHost())
+          .isEqualTo("localhost:15000");
+      assertThat(userConfigs.getGlobalClientConfigs().getSpannerEndpoint())
+          .isEqualTo("localhost:15000");
+      assertThat(userConfigs.getGlobalClientConfigs().getEnableBuiltInMetrics()).isTrue();
+      assertThat(userConfigs.getGlobalClientConfigs().getHealthCheckEndpoint())
+          .isEqualTo("127.0.0.1:8080");
+      assertThat(userConfigs.getGlobalClientConfigs().getClientCertificate())
+          .isEqualTo("/path/to/client.crt");
+      assertThat(userConfigs.getGlobalClientConfigs().getClientKey())
+          .isEqualTo("/path/to/client.key.pkcs8");
+
+      List<ListenerConfigs> listeners = userConfigs.getListeners();
+      assertThat(listeners).isNotNull();
+      assertThat(listeners).hasSize(2);
+    }
+  }
 }
