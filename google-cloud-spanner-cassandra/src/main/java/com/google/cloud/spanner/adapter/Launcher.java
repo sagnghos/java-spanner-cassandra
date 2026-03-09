@@ -261,6 +261,7 @@ public class Launcher {
 
     final DatabaseName databaseName =
         Strings.isNullOrEmpty(config.getExperimentalHost())
+                || DatabaseName.isParsableFrom(config.getDatabaseUri())
             ? DatabaseName.parse(config.getDatabaseUri())
             : DatabaseName.of(EXPERIMENTAL_HOST_ID, EXPERIMENTAL_HOST_ID, config.getDatabaseUri());
     final BuiltInMetricsRecorder metricsRecorder =
