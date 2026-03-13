@@ -2,9 +2,9 @@
 globalClientConfigs:
   enableBuiltInMetrics: true
   healthCheckEndpoint: "127.0.0.1:8080"
-  experimentalHost: "localhost:15000"
-  clientCertificate: "/path/to/client.crt"
-  clientKey: "/path/to/client.key.pkcs8"
+  experimentalHostEndpoint: "localhost:15000"
+  clientCertPath: "/path/to/client.crt"
+  clientKeyPath: "/path/to/client.key.pkcs8"
 
 # List of all listeners
 listeners:

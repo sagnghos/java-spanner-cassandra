@@ -49,10 +49,11 @@ import java.util.concurrent.TimeUnit;
 public class SpannerContext extends DatabaseContext {
 
   private static final String ENV_VAR_SPANNER_ENDPOINT = "SPANNER_ENDPOINT";
-  private static final String EXPERIMENTAL_HOST_PROPERTY = "spanner_cassandra.experimental_host";
-  private static final String USE_PLAIN_TEXT = "spanner_cassandra.use_plain_text";
-  private static final String CLIENT_CERTIFICATE = "spanner_cassandra.client_certificate";
-  private static final String CLIENT_KEY = "spanner_cassandra.client_key";
+  private static final String EXPERIMENTAL_HOST_ENDPOINT_PROPERTY =
+      "spanner_cassandra.experimental_host";
+  private static final String USE_PLAIN_TEXT_PROPERTY = "spanner_cassandra.use_plain_text";
+  private static final String CLIENT_CERT_PATH_PROPERTY = "spanner_cassandra.client_cert_path";
+  private static final String CLIENT_KEY_PATH_PROPERTY = "spanner_cassandra.client_key_path";
   private static final String EXPERIMENTAL_HOST_INSTANCE = "projects/default/instances/default";
   private static final String EXPERIMENTAL_HOST_ID = "default";
 
@@ -68,7 +69,7 @@ public class SpannerContext extends DatabaseContext {
 
   /* Determines whether endpoint is an experimental host */
   private boolean isRunningOnExperimentalHost() {
-    return !Strings.isNullOrEmpty(System.getProperty(EXPERIMENTAL_HOST_PROPERTY));
+    return !Strings.isNullOrEmpty(System.getProperty(EXPERIMENTAL_HOST_ENDPOINT_PROPERTY));
   }
 
   public SpannerContext() {
@@ -125,13 +126,9 @@ public class SpannerContext extends DatabaseContext {
   }
 
   private void initializeExperimentalHostSpanner() {
-    if (!isRunningOnExperimentalHost()) {
-      experimentalHostSpanner = null;
-      return;
-    }
-    String endpoint = System.getProperty(EXPERIMENTAL_HOST_PROPERTY);
+    String endpoint = System.getProperty(EXPERIMENTAL_HOST_ENDPOINT_PROPERTY);
     if (!endpoint.startsWith("http")) {
-      if (Boolean.getBoolean(USE_PLAIN_TEXT)) {
+      if (Boolean.getBoolean(USE_PLAIN_TEXT_PROPERTY)) {
         endpoint = "http://" + endpoint;
       } else {
         endpoint = "https://" + endpoint;
@@ -139,21 +136,23 @@ public class SpannerContext extends DatabaseContext {
     }
 
     SpannerOptions.Builder builder = SpannerOptions.newBuilder().setExperimentalHost(endpoint);
-    if (Boolean.getBoolean(USE_PLAIN_TEXT)) {
+    if (Boolean.getBoolean(USE_PLAIN_TEXT_PROPERTY)) {
       builder
           .setChannelConfigurator(ManagedChannelBuilder::usePlaintext)
           .setCredentials(NoCredentials.getInstance());
-    } else if (!Strings.isNullOrEmpty(System.getProperty(CLIENT_CERTIFICATE))
-        && !Strings.isNullOrEmpty(System.getProperty(CLIENT_KEY))) {
-      builder.useClientCert(System.getProperty(CLIENT_CERTIFICATE), System.getProperty(CLIENT_KEY));
+    } else if (!Strings.isNullOrEmpty(System.getProperty(CLIENT_CERT_PATH_PROPERTY))
+        && !Strings.isNullOrEmpty(System.getProperty(CLIENT_KEY_PATH_PROPERTY))) {
+      builder.useClientCert(
+          System.getProperty(CLIENT_CERT_PATH_PROPERTY),
+          System.getProperty(CLIENT_KEY_PATH_PROPERTY));
     }
     experimentalHostSpanner = builder.build().getService();
   }
 
   @Override
   public void initialize() throws Exception {
-    initializeExperimentalHostSpanner();
     if (!isRunningOnExperimentalHost()) {
+      experimentalHostSpanner = null;
       final String env_var_endpoint = System.getenv(ENV_VAR_SPANNER_ENDPOINT);
       DatabaseAdminSettings settings =
           DatabaseAdminSettings.newBuilder()
@@ -164,6 +163,7 @@ public class SpannerContext extends DatabaseContext {
           .createDatabaseAsync(instanceName, "CREATE DATABASE " + databaseId)
           .get(5, TimeUnit.MINUTES);
     } else {
+      initializeExperimentalHostSpanner();
       databaseAdminClient = null;
       experimentalHostSpanner
           .getDatabaseAdminClient()
@@ -199,14 +199,15 @@ public class SpannerContext extends DatabaseContext {
                     .build());
     if (isRunningOnExperimentalHost()) {
       sessionBuilder
-          .setExperimentalHost(System.getProperty(EXPERIMENTAL_HOST_PROPERTY))
+          .setExperimentalHostEndpoint(System.getProperty(EXPERIMENTAL_HOST_ENDPOINT_PROPERTY))
           .setUsePlainText(false);
-      if (Boolean.getBoolean(USE_PLAIN_TEXT)) {
+      if (Boolean.getBoolean(USE_PLAIN_TEXT_PROPERTY)) {
         sessionBuilder.setUsePlainText(true);
-      } else if (!Strings.isNullOrEmpty(System.getProperty(CLIENT_CERTIFICATE))
-          && !Strings.isNullOrEmpty(System.getProperty(CLIENT_KEY))) {
-        sessionBuilder.setClientCertificateAndKey(
-            System.getProperty(CLIENT_CERTIFICATE), System.getProperty(CLIENT_KEY));
+      } else if (!Strings.isNullOrEmpty(System.getProperty(CLIENT_CERT_PATH_PROPERTY))
+          && !Strings.isNullOrEmpty(System.getProperty(CLIENT_KEY_PATH_PROPERTY))) {
+        sessionBuilder.setClientCertPathAndKey(
+            System.getProperty(CLIENT_CERT_PATH_PROPERTY),
+            System.getProperty(CLIENT_KEY_PATH_PROPERTY));
       }
     }
     session = sessionBuilder.build();
@@ -221,6 +222,7 @@ public class SpannerContext extends DatabaseContext {
       experimentalHostSpanner
           .getDatabaseAdminClient()
           .dropDatabase(EXPERIMENTAL_HOST_ID, databaseId);
+      experimentalHostSpanner.close();
     }
     if (session != null) {
       session.close();

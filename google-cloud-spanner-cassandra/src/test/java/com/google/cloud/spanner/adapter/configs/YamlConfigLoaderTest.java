@@ -178,16 +178,16 @@ public class YamlConfigLoaderTest {
 
       assertThat(userConfigs).isNotNull();
       assertThat(userConfigs.getGlobalClientConfigs()).isNotNull();
-      assertThat(userConfigs.getGlobalClientConfigs().getExperimentalHost())
+      assertThat(userConfigs.getGlobalClientConfigs().getExperimentalHostEndpoint())
           .isEqualTo("localhost:15000");
       assertThat(userConfigs.getGlobalClientConfigs().getSpannerEndpoint())
           .isEqualTo("localhost:15000");
       assertThat(userConfigs.getGlobalClientConfigs().getEnableBuiltInMetrics()).isTrue();
       assertThat(userConfigs.getGlobalClientConfigs().getHealthCheckEndpoint())
           .isEqualTo("127.0.0.1:8080");
-      assertThat(userConfigs.getGlobalClientConfigs().getClientCertificate())
+      assertThat(userConfigs.getGlobalClientConfigs().getClientCertPath())
           .isEqualTo("/path/to/client.crt");
-      assertThat(userConfigs.getGlobalClientConfigs().getClientKey())
+      assertThat(userConfigs.getGlobalClientConfigs().getClientKeyPath())
           .isEqualTo("/path/to/client.key.pkcs8");
 
       List<ListenerConfigs> listeners = userConfigs.getListeners();

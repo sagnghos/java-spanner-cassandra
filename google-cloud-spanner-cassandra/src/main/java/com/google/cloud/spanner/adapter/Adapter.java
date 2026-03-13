@@ -95,7 +95,7 @@ final class Adapter {
 
     try {
       Credentials credentials = options.getCredentials();
-      if (options.usePlainText() || !Strings.isNullOrEmpty(options.getExperimentalHost())) {
+      if (options.usePlainText() || !Strings.isNullOrEmpty(options.getExperimentalHostEndpoint())) {
         credentials = null;
       } else if (credentials == null) {
         credentials = GoogleCredentials.getApplicationDefault();
@@ -114,11 +114,12 @@ final class Adapter {
       if (options.usePlainText()) {
         LOG.warn("Using plain text channel. This should not be used in production.");
         channelProviderBuilder.setChannelConfigurator(ManagedChannelBuilder::usePlaintext);
-      } else if (!Strings.isNullOrEmpty(options.getExperimentalHost()) && options.useClientCert()) {
+      } else if (!Strings.isNullOrEmpty(options.getExperimentalHostEndpoint())
+          && options.useClientCert()) {
         SslContext mTLSContext =
             GrpcSslContexts.forClient()
                 .keyManager(
-                    new File(options.getClientCertificate()), new File(options.getClientKey()))
+                    new File(options.getClientCertPath()), new File(options.getClientKeyPath()))
                 .build();
         channelProviderBuilder.setChannelConfigurator(
             channelBuilder -> {

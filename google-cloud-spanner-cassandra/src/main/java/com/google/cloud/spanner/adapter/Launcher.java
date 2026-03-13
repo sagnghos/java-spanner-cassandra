@@ -229,8 +229,8 @@ public class Launcher {
             .numGrpcChannels(config.getNumGrpcChannels())
             .metricsRecorder(metricsRecorder)
             .usePlainText(config.usePlainText())
-            .setExperimentalHost(config.getSpannerEndpoint())
-            .useClientCert(config.getClientCertificate(), config.getClientKey());
+            .setExperimentalHostEndpoint(config.getSpannerEndpoint())
+            .useClientCert(config.getClientCertPath(), config.getClientKeyPath());
     if (config.getMaxCommitDelayMillis() != null) {
       opBuilder.maxCommitDelay(Duration.ofMillis(config.getMaxCommitDelayMillis()));
     }
@@ -260,7 +260,7 @@ public class Launcher {
         config.isEnableBuiltInMetrics());
 
     final DatabaseName databaseName =
-        Strings.isNullOrEmpty(config.getExperimentalHost())
+        Strings.isNullOrEmpty(config.getExperimentalHostEndpoint())
                 || DatabaseName.isParsableFrom(config.getDatabaseUri())
             ? DatabaseName.parse(config.getDatabaseUri())
             : DatabaseName.of(EXPERIMENTAL_HOST_ID, EXPERIMENTAL_HOST_ID, config.getDatabaseUri());

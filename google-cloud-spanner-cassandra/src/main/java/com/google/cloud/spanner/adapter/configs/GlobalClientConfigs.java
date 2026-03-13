@@ -25,25 +25,25 @@ public class GlobalClientConfigs {
   private final Boolean enableBuiltInMetrics;
   private final String healthCheckEndpoint;
   private final Boolean usePlainText;
-  private final String clientCertificate;
-  private final String clientKey;
-  private final String experimentalHost;
+  private final String clientCertPath;
+  private final String clientKeyPath;
+  private final String experimentalHostEndpoint;
 
   public GlobalClientConfigs(
       String spannerEndpoint,
       Boolean enableBuiltInMetrics,
       String healthCheckEndpoint,
       Boolean usePlainText,
-      String experimentalHost,
-      String clientCertificate,
-      String clientKey) {
+      String experimentalHostEndpoint,
+      String clientCertPath,
+      String clientKeyPath) {
     this.spannerEndpoint = spannerEndpoint;
     this.enableBuiltInMetrics = enableBuiltInMetrics;
     this.healthCheckEndpoint = healthCheckEndpoint;
     this.usePlainText = usePlainText;
-    this.experimentalHost = experimentalHost;
-    this.clientCertificate = clientCertificate;
-    this.clientKey = clientKey;
+    this.experimentalHostEndpoint = experimentalHostEndpoint;
+    this.clientCertPath = clientCertPath;
+    this.clientKeyPath = clientKeyPath;
   }
 
   public GlobalClientConfigs(
@@ -65,13 +65,13 @@ public class GlobalClientConfigs {
       Boolean enableBuiltInMetrics,
       String healthCheckEndpoint,
       Boolean usePlainText,
-      String experimentalHost) {
+      String experimentalHostEndpoint) {
     this(
         spannerEndpoint,
         enableBuiltInMetrics,
         healthCheckEndpoint,
         usePlainText,
-        experimentalHost,
+        experimentalHostEndpoint,
         null,
         null);
   }
@@ -81,28 +81,28 @@ public class GlobalClientConfigs {
     Boolean enableBuiltInMetrics = (Boolean) yamlMap.get("enableBuiltInMetrics");
     String healthCheckEndpoint = (String) yamlMap.get("healthCheckEndpoint");
     Boolean usePlainText = (Boolean) yamlMap.get("usePlainText");
-    String experimentalHost = (String) yamlMap.get("experimentalHost");
-    String clientCertificate = (String) yamlMap.get("clientCertificate");
-    String clientKey = (String) yamlMap.get("clientKey");
-    if (!Strings.isNullOrEmpty(experimentalHost)) {
-      spannerEndpoint = experimentalHost;
+    String experimentalHostEndpoint = (String) yamlMap.get("experimentalHostEndpoint");
+    String clientCertPath = (String) yamlMap.get("clientCertPath");
+    String clientKeyPath = (String) yamlMap.get("clientKeyPath");
+    if (!Strings.isNullOrEmpty(experimentalHostEndpoint)) {
+      spannerEndpoint = experimentalHostEndpoint;
     }
-    if (Strings.isNullOrEmpty(clientCertificate) || Strings.isNullOrEmpty(clientKey)) {
+    if (Strings.isNullOrEmpty(clientCertPath) || Strings.isNullOrEmpty(clientKeyPath)) {
       return new GlobalClientConfigs(
           spannerEndpoint,
           enableBuiltInMetrics,
           healthCheckEndpoint,
           usePlainText,
-          experimentalHost);
+          experimentalHostEndpoint);
     }
     return new GlobalClientConfigs(
         spannerEndpoint,
         enableBuiltInMetrics,
         healthCheckEndpoint,
         usePlainText,
-        experimentalHost,
-        clientCertificate,
-        clientKey);
+        experimentalHostEndpoint,
+        clientCertPath,
+        clientKeyPath);
   }
 
   public String getSpannerEndpoint() {
@@ -121,15 +121,15 @@ public class GlobalClientConfigs {
     return usePlainText;
   }
 
-  public String getClientCertificate() {
-    return clientCertificate;
+  public String getClientCertPath() {
+    return clientCertPath;
   }
 
-  public String getClientKey() {
-    return clientKey;
+  public String getClientKeyPath() {
+    return clientKeyPath;
   }
 
-  public String getExperimentalHost() {
-    return experimentalHost;
+  public String getExperimentalHostEndpoint() {
+    return experimentalHostEndpoint;
   }
 }

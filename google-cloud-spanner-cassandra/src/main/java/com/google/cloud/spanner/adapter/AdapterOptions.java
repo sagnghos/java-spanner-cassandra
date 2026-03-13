@@ -42,9 +42,9 @@ class AdapterOptions {
     private BuiltInMetricsRecorder metricsRecorder;
     private boolean useVirtualThreads = false;
     private boolean usePlainText = false;
-    private String experimentalHost = null;
-    private String clientCertificate = null;
-    private String clientKey = null;
+    private String experimentalHostEndpoint = null;
+    private String clientCertPath = null;
+    private String clientKeyPath = null;
 
     /** The Cloud Spanner endpoint. */
     Builder spannerEndpoint(String spannerEndpoint) {
@@ -118,18 +118,18 @@ class AdapterOptions {
     }
 
     /** (Optional) Experimental host endpoint. */
-    Builder setExperimentalHost(String experimentalHost) {
-      this.experimentalHost = experimentalHost;
-      if (!Strings.isNullOrEmpty(experimentalHost)) {
-        this.spannerEndpoint = this.experimentalHost;
+    Builder setExperimentalHostEndpoint(String experimentalHostEndpoint) {
+      this.experimentalHostEndpoint = experimentalHostEndpoint;
+      if (!Strings.isNullOrEmpty(experimentalHostEndpoint)) {
+        this.spannerEndpoint = this.experimentalHostEndpoint;
       }
       return this;
     }
 
     /** (Optional) Use mTLS connection to communicate with Experimental Host instance. */
-    Builder useClientCert(String clientCertificate, String clientKey) {
-      this.clientCertificate = clientCertificate;
-      this.clientKey = clientKey;
+    Builder useClientCert(String clientCertPath, String clientKeyPath) {
+      this.clientCertPath = clientCertPath;
+      this.clientKeyPath = clientKeyPath;
       return this;
     }
 
@@ -149,9 +149,9 @@ class AdapterOptions {
   private BuiltInMetricsRecorder metricsRecorder;
   private boolean useVirtualThreads;
   private boolean usePlainText;
-  private String experimentalHost;
-  private String clientCertificate;
-  private String clientKey;
+  private String experimentalHostEndpoint;
+  private String clientCertPath;
+  private String clientKeyPath;
 
   private AdapterOptions(Builder builder) {
     this.spannerEndpoint = builder.spannerEndpoint;
@@ -165,9 +165,9 @@ class AdapterOptions {
     this.metricsRecorder = builder.metricsRecorder;
     this.useVirtualThreads = builder.useVirtualThreads;
     this.usePlainText = builder.usePlainText;
-    this.experimentalHost = builder.experimentalHost;
-    this.clientCertificate = builder.clientCertificate;
-    this.clientKey = builder.clientKey;
+    this.experimentalHostEndpoint = builder.experimentalHostEndpoint;
+    this.clientCertPath = builder.clientCertPath;
+    this.clientKeyPath = builder.clientKeyPath;
   }
 
   static Builder newBuilder() {
@@ -218,19 +218,19 @@ class AdapterOptions {
     return usePlainText;
   }
 
-  String getExperimentalHost() {
-    return experimentalHost;
+  String getExperimentalHostEndpoint() {
+    return experimentalHostEndpoint;
   }
 
   boolean useClientCert() {
-    return !Strings.isNullOrEmpty(clientCertificate) && !Strings.isNullOrEmpty(clientKey);
+    return !Strings.isNullOrEmpty(clientCertPath) && !Strings.isNullOrEmpty(clientKeyPath);
   }
 
-  String getClientCertificate() {
-    return clientCertificate;
+  String getClientCertPath() {
+    return clientCertPath;
   }
 
-  String getClientKey() {
-    return clientKey;
+  String getClientKeyPath() {
+    return clientKeyPath;
   }
 }

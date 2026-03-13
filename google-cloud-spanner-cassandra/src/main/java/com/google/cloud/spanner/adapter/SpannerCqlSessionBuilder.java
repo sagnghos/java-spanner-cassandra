@@ -67,9 +67,9 @@ public final class SpannerCqlSessionBuilder
   private Credentials credentials;
   private boolean useVirtualThreads;
   private boolean usePlainText;
-  private String experimentalHost;
-  private String clientCertificate = null;
-  private String clientKey = null;
+  private String experimentalHostEndpoint;
+  private String clientCertPath = null;
+  private String clientKeyPath = null;
 
   /**
    * Wraps the default CQL session with a SpannerCqlSession instance.
@@ -160,10 +160,10 @@ public final class SpannerCqlSessionBuilder
   }
 
   /** (Optional, default null) Experimental Host endpoint */
-  public SpannerCqlSessionBuilder setExperimentalHost(String experimentalHost) {
-    this.experimentalHost = experimentalHost;
-    if (!Strings.isNullOrEmpty(experimentalHost)) {
-      this.host = experimentalHost;
+  public SpannerCqlSessionBuilder setExperimentalHostEndpoint(String experimentalHostEndpoint) {
+    this.experimentalHostEndpoint = experimentalHostEndpoint;
+    if (!Strings.isNullOrEmpty(experimentalHostEndpoint)) {
+      this.host = experimentalHostEndpoint;
     }
     return this;
   }
@@ -172,10 +172,10 @@ public final class SpannerCqlSessionBuilder
    * (Optional, default null) Enables mTLS connection to experimental host endpoint using client
    * certificate and key This should only be used for connecting to experimental host instances.
    */
-  public SpannerCqlSessionBuilder setClientCertificateAndKey(
-      String clientCertificate, String clientKey) {
-    this.clientCertificate = clientCertificate;
-    this.clientKey = clientKey;
+  public SpannerCqlSessionBuilder setClientCertPathAndKey(
+      String clientCertPath, String clientKeyPath) {
+    this.clientCertPath = clientCertPath;
+    this.clientKeyPath = clientKeyPath;
     return this;
   }
 
@@ -305,8 +305,8 @@ public final class SpannerCqlSessionBuilder
             .metricsRecorder(metricsRecorder)
             .useVirtualThreads(useVirtualThreads)
             .usePlainText(usePlainText)
-            .setExperimentalHost(experimentalHost)
-            .useClientCert(clientCertificate, clientKey)
+            .setExperimentalHostEndpoint(experimentalHostEndpoint)
+            .useClientCert(clientCertPath, clientKeyPath)
             .build();
     adapter = new Adapter(adapterOptions);
     adapter.start();

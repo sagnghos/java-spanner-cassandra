@@ -113,8 +113,8 @@ public class LauncherTest {
     assertThat(options1.getInetAddress()).isEqualTo(InetAddress.getByName("127.0.0.1"));
     assertThat(options1.getSpannerEndpoint()).isEqualTo("spanner.googleapis.com:443");
     assertThat(options1.usePlainText()).isFalse();
-    assertThat(options1.getClientCertificate()).isNull();
-    assertThat(options1.getClientKey()).isNull();
+    assertThat(options1.getClientCertPath()).isNull();
+    assertThat(options1.getClientKeyPath()).isNull();
 
     AdapterOptions options2 = adapterOptionsCaptor.getAllValues().get(1);
     assertThat(options2.getDatabaseUri())
@@ -123,8 +123,8 @@ public class LauncherTest {
     assertThat(options2.getInetAddress()).isEqualTo(InetAddress.getByName("0.0.0.0"));
     assertThat(options2.getSpannerEndpoint()).isEqualTo("spanner.googleapis.com:443");
     assertThat(options2.usePlainText()).isFalse();
-    assertThat(options1.getClientCertificate()).isNull();
-    assertThat(options1.getClientKey()).isNull();
+    assertThat(options1.getClientCertPath()).isNull();
+    assertThat(options1.getClientKeyPath()).isNull();
   }
 
   @Test
@@ -187,8 +187,8 @@ public class LauncherTest {
     assertThat(options.getMaxCommitDelay().get().toMillis()).isEqualTo(100);
     assertThat(options.getSpannerEndpoint()).isEqualTo("localhost:15000");
     assertThat(options.usePlainText()).isTrue();
-    assertThat(options.getClientCertificate()).isNull();
-    assertThat(options.getClientKey()).isNull();
+    assertThat(options.getClientCertPath()).isNull();
+    assertThat(options.getClientKeyPath()).isNull();
   }
 
   @Test
@@ -246,9 +246,9 @@ public class LauncherTest {
     properties.put("maxCommitDelayMillis", "100");
     properties.put("enableBuiltInMetrics", "true");
     properties.put("healthCheckPort", "8080");
-    properties.put("experimentalHost", "localhost:15000");
-    properties.put("clientCertificate", "/path/to/client.crt");
-    properties.put("clientKey", "/path/to/client.key.pkcs8");
+    properties.put("experimentalHostEndpoint", "localhost:15000");
+    properties.put("clientCertPath", "/path/to/client.crt");
+    properties.put("clientKeyPath", "/path/to/client.key.pkcs8");
     LauncherConfig config = LauncherConfig.fromProperties(properties);
 
     launcher.run(config);
@@ -267,8 +267,8 @@ public class LauncherTest {
     assertThat(options.getMaxCommitDelay().get().toMillis()).isEqualTo(100);
     assertThat(options.getSpannerEndpoint()).isEqualTo("localhost:15000");
     assertThat(options.usePlainText()).isFalse();
-    assertThat(options.getExperimentalHost()).isEqualTo("localhost:15000");
-    assertThat(options.getClientCertificate()).isEqualTo("/path/to/client.crt");
-    assertThat(options.getClientKey()).isEqualTo("/path/to/client.key.pkcs8");
+    assertThat(options.getExperimentalHostEndpoint()).isEqualTo("localhost:15000");
+    assertThat(options.getClientCertPath()).isEqualTo("/path/to/client.crt");
+    assertThat(options.getClientKeyPath()).isEqualTo("/path/to/client.key.pkcs8");
   }
 }

@@ -262,8 +262,8 @@ public class LauncherConfigParserTest {
     ListenerConfig listenerConfig1 = config.getListeners().get(0);
     assertThat(listenerConfig1.getSpannerEndpoint()).isEqualTo("localhost:15000");
     assertThat(listenerConfig1.usePlainText()).isFalse();
-    assertThat(listenerConfig1.getClientCertificate()).isEqualTo("/path/to/client.crt");
-    assertThat(listenerConfig1.getClientKey()).isEqualTo("/path/to/client.key.pkcs8");
+    assertThat(listenerConfig1.getClientCertPath()).isEqualTo("/path/to/client.crt");
+    assertThat(listenerConfig1.getClientKeyPath()).isEqualTo("/path/to/client.key.pkcs8");
 
     ListenerConfig listenerConfig2 = config.getListeners().get(1);
     assertThat(listenerConfig2.getDatabaseUri())
@@ -271,8 +271,8 @@ public class LauncherConfigParserTest {
     assertThat(listenerConfig2.getPort()).isEqualTo(9043);
     assertThat(listenerConfig2.getSpannerEndpoint()).isEqualTo("localhost:15000");
     assertThat(listenerConfig2.usePlainText()).isFalse();
-    assertThat(listenerConfig1.getExperimentalHost()).isEqualTo("localhost:15000");
-    assertThat(listenerConfig1.getClientCertificate()).isEqualTo("/path/to/client.crt");
-    assertThat(listenerConfig1.getClientKey()).isEqualTo("/path/to/client.key.pkcs8");
+    assertThat(listenerConfig1.getExperimentalHostEndpoint()).isEqualTo("localhost:15000");
+    assertThat(listenerConfig1.getClientCertPath()).isEqualTo("/path/to/client.crt");
+    assertThat(listenerConfig1.getClientKeyPath()).isEqualTo("/path/to/client.key.pkcs8");
   }
 }
