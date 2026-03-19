@@ -273,4 +273,18 @@ public class LauncherConfigParserTest {
     assertThat(listenerConfig1.getClientCertPath()).isEqualTo("/path/to/client.crt");
     assertThat(listenerConfig1.getClientKeyPath()).isEqualTo("/path/to/client.key.pkcs8");
   }
+
+  @Test
+  public void testParse_withHostConflictConfigFile_throwsIOException() throws Exception {
+    String configFile =
+        getClass().getClassLoader().getResource("invalid-host-conflict-config.yaml").getFile();
+    Map<String, String> properties = new HashMap<>();
+    properties.put("configFilePath", configFile);
+
+    IOException thrown =
+        assertThrows(IOException.class, () -> LauncherConfigParser.parse(properties));
+    assertThat(thrown.getCause()).isInstanceOf(IllegalArgumentException.class);
+    assertThat(thrown.getCause().getMessage())
+        .contains("Only one of Spanner Host or Experimental Host can be set.");
+  }
 }
