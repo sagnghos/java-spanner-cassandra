@@ -153,15 +153,20 @@ final class Adapter {
               options.getDatabaseUri(),
               USER_AGENT_KEY,
               DEFAULT_USER_AGENT);
-      AdapterSettings settings =
+      AdapterSettings.Builder settingsBuilder =
           AdapterSettings.newBuilder()
-              .setEndpoint(options.getSpannerEndpoint())
               .setTransportChannelProvider(
                   MoreObjects.firstNonNull(
                       options.getChannelProvider(), channelProviderBuilder.build()))
               .setCredentialsProvider(credentialsProvider)
-              .setHeaderProvider(headerProvider)
-              .build();
+              .setHeaderProvider(headerProvider);
+      if (!Strings.isNullOrEmpty(options.getExperimentalHostEndpoint())) {
+        settingsBuilder.setEndpoint(options.getExperimentalHostEndpoint());
+      } else {
+        settingsBuilder.setEndpoint(options.getSpannerEndpoint());
+      }
+
+      AdapterSettings settings = settingsBuilder.build();
 
       adapterClient = AdapterClient.create(settings);
 

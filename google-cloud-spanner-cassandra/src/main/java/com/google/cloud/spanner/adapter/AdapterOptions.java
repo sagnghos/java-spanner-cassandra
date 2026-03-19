@@ -48,6 +48,7 @@ class AdapterOptions {
 
     /** The Cloud Spanner endpoint. */
     Builder spannerEndpoint(String spannerEndpoint) {
+      validateHostConflict(spannerEndpoint, this.experimentalHostEndpoint);
       this.spannerEndpoint = spannerEndpoint;
       return this;
     }
@@ -119,10 +120,8 @@ class AdapterOptions {
 
     /** (Optional) Experimental host endpoint. */
     Builder setExperimentalHostEndpoint(String experimentalHostEndpoint) {
+      validateHostConflict(this.spannerEndpoint, experimentalHostEndpoint);
       this.experimentalHostEndpoint = experimentalHostEndpoint;
-      if (!Strings.isNullOrEmpty(experimentalHostEndpoint)) {
-        this.spannerEndpoint = this.experimentalHostEndpoint;
-      }
       return this;
     }
 
@@ -131,6 +130,16 @@ class AdapterOptions {
       this.clientCertPath = clientCertPath;
       this.clientKeyPath = clientKeyPath;
       return this;
+    }
+
+    private void validateHostConflict(
+        String spannerEndpointToCheck, String experimentalHostEndpointToCheck) {
+      if (!Strings.isNullOrEmpty(spannerEndpointToCheck)
+          && !spannerEndpointToCheck.equals(DEFAULT_SPANNER_ENDPOINT)
+          && !Strings.isNullOrEmpty(experimentalHostEndpointToCheck)) {
+        throw new IllegalArgumentException(
+            "Only one of Spanner Host or Experimental Host can be set.");
+      }
     }
 
     AdapterOptions build() {

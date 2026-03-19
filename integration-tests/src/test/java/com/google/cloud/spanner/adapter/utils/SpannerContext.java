@@ -109,6 +109,9 @@ public class SpannerContext extends DatabaseContext {
       ddls.add(generateSpannerDdl(tableDefinition.tableName, tableDefinition.columnDefinitions));
     }
     if (isRunningOnExperimentalHost()) {
+      if (experimentalHostSpanner == null) {
+        throw new IllegalStateException("initialize() not called.");
+      }
       experimentalHostSpanner
           .getDatabaseAdminClient()
           .updateDatabaseDdl(EXPERIMENTAL_HOST_ID, databaseId, ddls, null)

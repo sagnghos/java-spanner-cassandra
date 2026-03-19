@@ -23,7 +23,6 @@ import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.auth.Credentials;
 import com.google.cloud.spanner.adapter.metrics.BuiltInMetricsProvider;
 import com.google.cloud.spanner.adapter.metrics.BuiltInMetricsRecorder;
-import com.google.common.base.Strings;
 import com.google.spanner.adapter.v1.DatabaseName;
 import io.opentelemetry.api.OpenTelemetry;
 import java.net.InetAddress;
@@ -162,9 +161,6 @@ public final class SpannerCqlSessionBuilder
   /** (Optional, default null) Experimental Host endpoint */
   public SpannerCqlSessionBuilder setExperimentalHostEndpoint(String experimentalHostEndpoint) {
     this.experimentalHostEndpoint = experimentalHostEndpoint;
-    if (!Strings.isNullOrEmpty(experimentalHostEndpoint)) {
-      this.host = experimentalHostEndpoint;
-    }
     return this;
   }
 

@@ -84,9 +84,6 @@ public class GlobalClientConfigs {
     String experimentalHostEndpoint = (String) yamlMap.get("experimentalHostEndpoint");
     String clientCertPath = (String) yamlMap.get("clientCertPath");
     String clientKeyPath = (String) yamlMap.get("clientKeyPath");
-    if (!Strings.isNullOrEmpty(experimentalHostEndpoint)) {
-      spannerEndpoint = experimentalHostEndpoint;
-    }
     if (Strings.isNullOrEmpty(clientCertPath) || Strings.isNullOrEmpty(clientKeyPath)) {
       return new GlobalClientConfigs(
           spannerEndpoint,

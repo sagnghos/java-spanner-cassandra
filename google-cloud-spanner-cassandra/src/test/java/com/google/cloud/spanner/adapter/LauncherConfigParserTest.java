@@ -260,7 +260,6 @@ public class LauncherConfigParserTest {
 
     assertThat(config.getListeners()).hasSize(2);
     ListenerConfig listenerConfig1 = config.getListeners().get(0);
-    assertThat(listenerConfig1.getSpannerEndpoint()).isEqualTo("localhost:15000");
     assertThat(listenerConfig1.usePlainText()).isFalse();
     assertThat(listenerConfig1.getClientCertPath()).isEqualTo("/path/to/client.crt");
     assertThat(listenerConfig1.getClientKeyPath()).isEqualTo("/path/to/client.key.pkcs8");
@@ -269,7 +268,6 @@ public class LauncherConfigParserTest {
     assertThat(listenerConfig2.getDatabaseUri())
         .isEqualTo("projects/my-project/instances/my-instance/databases/my-database-2");
     assertThat(listenerConfig2.getPort()).isEqualTo(9043);
-    assertThat(listenerConfig2.getSpannerEndpoint()).isEqualTo("localhost:15000");
     assertThat(listenerConfig2.usePlainText()).isFalse();
     assertThat(listenerConfig1.getExperimentalHostEndpoint()).isEqualTo("localhost:15000");
     assertThat(listenerConfig1.getClientCertPath()).isEqualTo("/path/to/client.crt");

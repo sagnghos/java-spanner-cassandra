@@ -229,7 +229,7 @@ public class Launcher {
             .numGrpcChannels(config.getNumGrpcChannels())
             .metricsRecorder(metricsRecorder)
             .usePlainText(config.usePlainText())
-            .setExperimentalHostEndpoint(config.getSpannerEndpoint())
+            .setExperimentalHostEndpoint(config.getExperimentalHostEndpoint())
             .useClientCert(config.getClientCertPath(), config.getClientKeyPath());
     if (config.getMaxCommitDelayMillis() != null) {
       opBuilder.maxCommitDelay(Duration.ofMillis(config.getMaxCommitDelayMillis()));
@@ -248,6 +248,25 @@ public class Launcher {
         openTelemetry, builtInMetricsProvider.createDefaultAttributes(databaseName.getDatabase()));
   }
 
+  private DatabaseName resolveDatabaseName(ListenerConfig config) {
+    String uriOrId = config.getDatabaseUri();
+
+    if (DatabaseName.isParsableFrom(uriOrId)) {
+      return DatabaseName.parse(uriOrId);
+    }
+
+    boolean isExperimentalHostEndpoint =
+        !Strings.isNullOrEmpty(config.getExperimentalHostEndpoint());
+
+    if (isExperimentalHostEndpoint) {
+      return DatabaseName.of(EXPERIMENTAL_HOST_ID, EXPERIMENTAL_HOST_ID, uriOrId);
+    }
+
+    // User is trying to connect to Cloud Spanner instance with an invalid database URI. We
+    // intentionally call parse() here, so it throws the standard Spanner IllegalArgumentException.
+    return DatabaseName.parse(uriOrId);
+  }
+
   private void startAdapter(ListenerConfig config) throws IOException {
     LOG.info(
         "Starting Adapter for Spanner database {} on {}:{} with {} gRPC channels, max commit"
@@ -259,11 +278,7 @@ public class Launcher {
         config.getMaxCommitDelayMillis(),
         config.isEnableBuiltInMetrics());
 
-    final DatabaseName databaseName =
-        Strings.isNullOrEmpty(config.getExperimentalHostEndpoint())
-                || DatabaseName.isParsableFrom(config.getDatabaseUri())
-            ? DatabaseName.parse(config.getDatabaseUri())
-            : DatabaseName.of(EXPERIMENTAL_HOST_ID, EXPERIMENTAL_HOST_ID, config.getDatabaseUri());
+    final DatabaseName databaseName = resolveDatabaseName(config);
     final BuiltInMetricsRecorder metricsRecorder =
         createMetricsRecorder(config.isEnableBuiltInMetrics(), databaseName);
     final AdapterOptions options = buildAdapterOptions(config, metricsRecorder);

@@ -265,7 +265,6 @@ public class LauncherTest {
     assertThat(options.getInetAddress()).isEqualTo(InetAddress.getByName("127.0.0.1"));
     assertThat(options.getNumGrpcChannels()).isEqualTo(8);
     assertThat(options.getMaxCommitDelay().get().toMillis()).isEqualTo(100);
-    assertThat(options.getSpannerEndpoint()).isEqualTo("localhost:15000");
     assertThat(options.usePlainText()).isFalse();
     assertThat(options.getExperimentalHostEndpoint()).isEqualTo("localhost:15000");
     assertThat(options.getClientCertPath()).isEqualTo("/path/to/client.crt");
