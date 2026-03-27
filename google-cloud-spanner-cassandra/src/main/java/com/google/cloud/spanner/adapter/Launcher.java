@@ -255,10 +255,7 @@ public class Launcher {
       return DatabaseName.parse(uriOrId);
     }
 
-    boolean isExperimentalHostEndpoint =
-        !Strings.isNullOrEmpty(config.getExperimentalHostEndpoint());
-
-    if (isExperimentalHostEndpoint) {
+    if (!Strings.isNullOrEmpty(config.getExperimentalHostEndpoint())) {
       return DatabaseName.of(EXPERIMENTAL_HOST_ID, EXPERIMENTAL_HOST_ID, uriOrId);
     }
 

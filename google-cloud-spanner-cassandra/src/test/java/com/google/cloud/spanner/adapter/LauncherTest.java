@@ -123,8 +123,8 @@ public class LauncherTest {
     assertThat(options2.getInetAddress()).isEqualTo(InetAddress.getByName("0.0.0.0"));
     assertThat(options2.getSpannerEndpoint()).isEqualTo("spanner.googleapis.com:443");
     assertThat(options2.usePlainText()).isFalse();
-    assertThat(options1.getClientCertPath()).isNull();
-    assertThat(options1.getClientKeyPath()).isNull();
+    assertThat(options2.getClientCertPath()).isNull();
+    assertThat(options2.getClientKeyPath()).isNull();
   }
 
   @Test

@@ -25,9 +25,9 @@ public class GlobalClientConfigs {
   private final Boolean enableBuiltInMetrics;
   private final String healthCheckEndpoint;
   private final Boolean usePlainText;
+  private final String experimentalHostEndpoint;
   private final String clientCertPath;
   private final String clientKeyPath;
-  private final String experimentalHostEndpoint;
 
   public GlobalClientConfigs(
       String spannerEndpoint,
@@ -118,15 +118,15 @@ public class GlobalClientConfigs {
     return usePlainText;
   }
 
+  public String getExperimentalHostEndpoint() {
+    return experimentalHostEndpoint;
+  }
+
   public String getClientCertPath() {
     return clientCertPath;
   }
 
   public String getClientKeyPath() {
     return clientKeyPath;
-  }
-
-  public String getExperimentalHostEndpoint() {
-    return experimentalHostEndpoint;
   }
 }
