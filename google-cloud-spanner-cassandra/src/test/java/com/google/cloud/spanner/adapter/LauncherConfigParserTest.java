@@ -261,7 +261,9 @@ public class LauncherConfigParserTest {
     assertThat(config.getListeners()).hasSize(2);
     ListenerConfig listenerConfig1 = config.getListeners().get(0);
     assertThat(listenerConfig1.usePlainText()).isFalse();
-    assertThat(listenerConfig1.getExperimentalHostEndpoint()).isEqualTo("localhost:15000");
+    assertThat(listenerConfig1.getSpannerEndpoint()).isEqualTo("localhost:15000");
+    assertThat(listenerConfig1.getInstanceType())
+        .isEqualTo(SpannerCqlSessionBuilder.InstanceType.OMNI);
     assertThat(listenerConfig1.getClientCertPath()).isEqualTo("/path/to/client.crt");
     assertThat(listenerConfig1.getClientKeyPath()).isEqualTo("/path/to/client.key.pkcs8");
 
@@ -270,22 +272,10 @@ public class LauncherConfigParserTest {
         .isEqualTo("projects/my-project/instances/my-instance/databases/my-database-2");
     assertThat(listenerConfig2.getPort()).isEqualTo(9043);
     assertThat(listenerConfig2.usePlainText()).isFalse();
-    assertThat(listenerConfig2.getExperimentalHostEndpoint()).isEqualTo("localhost:15000");
+    assertThat(listenerConfig2.getSpannerEndpoint()).isEqualTo("localhost:15000");
+    assertThat(listenerConfig2.getInstanceType())
+        .isEqualTo(SpannerCqlSessionBuilder.InstanceType.OMNI);
     assertThat(listenerConfig2.getClientCertPath()).isEqualTo("/path/to/client.crt");
     assertThat(listenerConfig2.getClientKeyPath()).isEqualTo("/path/to/client.key.pkcs8");
-  }
-
-  @Test
-  public void testParse_withHostConflictConfigFile_throwsIOException() throws Exception {
-    String configFile =
-        getClass().getClassLoader().getResource("invalid-host-conflict-config.yaml").getFile();
-    Map<String, String> properties = new HashMap<>();
-    properties.put("configFilePath", configFile);
-
-    IOException thrown =
-        assertThrows(IOException.class, () -> LauncherConfigParser.parse(properties));
-    assertThat(thrown.getCause()).isInstanceOf(IllegalArgumentException.class);
-    assertThat(thrown.getCause().getMessage())
-        .contains("Only one of Spanner Host or Experimental Host can be set.");
   }
 }

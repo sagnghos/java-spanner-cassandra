@@ -178,8 +178,9 @@ public class YamlConfigLoaderTest {
 
       assertThat(userConfigs).isNotNull();
       assertThat(userConfigs.getGlobalClientConfigs()).isNotNull();
-      assertThat(userConfigs.getGlobalClientConfigs().getExperimentalHostEndpoint())
+      assertThat(userConfigs.getGlobalClientConfigs().getSpannerEndpoint())
           .isEqualTo("localhost:15000");
+      assertThat(userConfigs.getGlobalClientConfigs().getInstanceType()).isEqualTo("omni");
       assertThat(userConfigs.getGlobalClientConfigs().getEnableBuiltInMetrics()).isTrue();
       assertThat(userConfigs.getGlobalClientConfigs().getHealthCheckEndpoint())
           .isEqualTo("127.0.0.1:8080");

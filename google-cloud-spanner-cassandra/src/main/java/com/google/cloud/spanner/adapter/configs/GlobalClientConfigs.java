@@ -25,7 +25,7 @@ public class GlobalClientConfigs {
   private final Boolean enableBuiltInMetrics;
   private final String healthCheckEndpoint;
   private final Boolean usePlainText;
-  private final String experimentalHostEndpoint;
+  private final String instanceType;
   private final String clientCertPath;
   private final String clientKeyPath;
 
@@ -35,20 +35,29 @@ public class GlobalClientConfigs {
       String healthCheckEndpoint,
       Boolean usePlainText,
       String experimentalHostEndpoint,
+      String instanceType,
       String clientCertPath,
       String clientKeyPath) {
+    if (!Strings.isNullOrEmpty(experimentalHostEndpoint)) {
+      if (Strings.isNullOrEmpty(spannerEndpoint)) {
+        spannerEndpoint = experimentalHostEndpoint;
+      }
+      if (Strings.isNullOrEmpty(instanceType)) {
+        instanceType = "omni";
+      }
+    }
     this.spannerEndpoint = spannerEndpoint;
     this.enableBuiltInMetrics = enableBuiltInMetrics;
     this.healthCheckEndpoint = healthCheckEndpoint;
     this.usePlainText = usePlainText;
-    this.experimentalHostEndpoint = experimentalHostEndpoint;
+    this.instanceType = instanceType;
     this.clientCertPath = clientCertPath;
     this.clientKeyPath = clientKeyPath;
   }
 
   public GlobalClientConfigs(
       String spannerEndpoint, Boolean enableBuiltInMetrics, String healthCheckEndpoint) {
-    this(spannerEndpoint, enableBuiltInMetrics, healthCheckEndpoint, null, null, null, null);
+    this(spannerEndpoint, enableBuiltInMetrics, healthCheckEndpoint, null, null, null, null, null);
   }
 
   public GlobalClientConfigs(
@@ -57,9 +66,21 @@ public class GlobalClientConfigs {
       String healthCheckEndpoint,
       Boolean usePlainText) {
     this(
-        spannerEndpoint, enableBuiltInMetrics, healthCheckEndpoint, usePlainText, null, null, null);
+        spannerEndpoint,
+        enableBuiltInMetrics,
+        healthCheckEndpoint,
+        usePlainText,
+        null,
+        null,
+        null,
+        null);
   }
 
+  /**
+   * @deprecated Use {@link #GlobalClientConfigs(String, Boolean, String, Boolean, String, String,
+   *     String, String)} instead.
+   */
+  @Deprecated
   public GlobalClientConfigs(
       String spannerEndpoint,
       Boolean enableBuiltInMetrics,
@@ -73,6 +94,7 @@ public class GlobalClientConfigs {
         usePlainText,
         experimentalHostEndpoint,
         null,
+        null,
         null);
   }
 
@@ -82,15 +104,20 @@ public class GlobalClientConfigs {
     String healthCheckEndpoint = (String) yamlMap.get("healthCheckEndpoint");
     Boolean usePlainText = (Boolean) yamlMap.get("usePlainText");
     String experimentalHostEndpoint = (String) yamlMap.get("experimentalHostEndpoint");
+    String instanceType = (String) yamlMap.get("instanceType");
     String clientCertPath = (String) yamlMap.get("clientCertPath");
     String clientKeyPath = (String) yamlMap.get("clientKeyPath");
+
     if (Strings.isNullOrEmpty(clientCertPath) || Strings.isNullOrEmpty(clientKeyPath)) {
       return new GlobalClientConfigs(
           spannerEndpoint,
           enableBuiltInMetrics,
           healthCheckEndpoint,
           usePlainText,
-          experimentalHostEndpoint);
+          experimentalHostEndpoint,
+          instanceType,
+          null,
+          null);
     }
     return new GlobalClientConfigs(
         spannerEndpoint,
@@ -98,6 +125,7 @@ public class GlobalClientConfigs {
         healthCheckEndpoint,
         usePlainText,
         experimentalHostEndpoint,
+        instanceType,
         clientCertPath,
         clientKeyPath);
   }
@@ -118,8 +146,16 @@ public class GlobalClientConfigs {
     return usePlainText;
   }
 
+  /**
+   * @deprecated Use {@link #getSpannerEndpoint()} and {@link #getInstanceType()} instead.
+   */
+  @Deprecated
   public String getExperimentalHostEndpoint() {
-    return experimentalHostEndpoint;
+    return "omni".equalsIgnoreCase(instanceType) ? spannerEndpoint : null;
+  }
+
+  public String getInstanceType() {
+    return instanceType;
   }
 
   public String getClientCertPath() {
