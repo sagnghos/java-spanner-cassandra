@@ -171,7 +171,7 @@ public final class SpannerCqlSessionBuilder
    * (Optional, default CLOUD) Specifies the type of Spanner instance to connect to. Setting it to
    * OMNI is mandatory when connecting to a Spanner Omni instance.
    */
-  public SpannerCqlSessionBuilder setEndpointType(InstanceType instanceType) {
+  public SpannerCqlSessionBuilder setInstanceType(InstanceType instanceType) {
     this.instanceType = instanceType;
     return this;
   }
@@ -179,7 +179,7 @@ public final class SpannerCqlSessionBuilder
   /**
    * (Optional, default null) Experimental Host endpoint.
    *
-   * @deprecated Use {@link #setHost(String)} and {@link #setEndpointType(InstanceType)} instead.
+   * @deprecated Use {@link #setHost(String)} and {@link #setInstanceType(InstanceType)} instead.
    */
   @Deprecated
   public SpannerCqlSessionBuilder setExperimentalHostEndpoint(String experimentalHostEndpoint) {

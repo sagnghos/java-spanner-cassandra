@@ -47,7 +47,7 @@ public class SpannerCqlSessionBuilderTest {
   public void testSetHostAndType_newWay() throws Exception {
     SpannerCqlSessionBuilder builder = new SpannerCqlSessionBuilder();
     builder.setHost("omni-host:15000");
-    builder.setEndpointType(InstanceType.OMNI);
+    builder.setInstanceType(InstanceType.OMNI);
 
     Field hostField = SpannerCqlSessionBuilder.class.getDeclaredField("host");
     hostField.setAccessible(true);

@@ -68,7 +68,7 @@ public final class LauncherConfig {
 
     if (userConfigs.getGlobalClientConfigs() != null) {
       String expHost = userConfigs.getGlobalClientConfigs().getExperimentalHostEndpoint();
-      String typeStr = userConfigs.getGlobalClientConfigs().getInstanceType();
+      InstanceType type = userConfigs.getGlobalClientConfigs().getInstanceType();
       if (!Strings.isNullOrEmpty(expHost)) {
         globalSpannerEndpoint = expHost;
         instanceType = InstanceType.OMNI;
@@ -77,8 +77,7 @@ public final class LauncherConfig {
             userConfigs.getGlobalClientConfigs().getSpannerEndpoint() != null
                 ? userConfigs.getGlobalClientConfigs().getSpannerEndpoint()
                 : ConfigConstants.DEFAULT_SPANNER_ENDPOINT;
-        instanceType =
-            typeStr != null ? InstanceType.valueOf(typeStr.toUpperCase()) : InstanceType.CLOUD;
+        instanceType = type != null ? type : InstanceType.CLOUD;
       }
       globalEnableBuiltInMetrics =
           userConfigs.getGlobalClientConfigs().getEnableBuiltInMetrics() != null

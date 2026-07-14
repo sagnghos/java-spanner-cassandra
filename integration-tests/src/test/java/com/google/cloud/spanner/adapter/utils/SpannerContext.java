@@ -219,7 +219,7 @@ public class SpannerContext extends DatabaseContext {
       if (!Strings.isNullOrEmpty(endpoint)) {
         sessionBuilder.setHost(endpoint);
       }
-      sessionBuilder.setEndpointType(InstanceType.OMNI).setUsePlainText(false);
+      sessionBuilder.setInstanceType(InstanceType.OMNI).setUsePlainText(false);
       if (Boolean.getBoolean(USE_PLAIN_TEXT_PROPERTY)) {
         sessionBuilder.setUsePlainText(true);
       } else if (!Strings.isNullOrEmpty(System.getProperty(CLIENT_CERT_PATH_PROPERTY))
