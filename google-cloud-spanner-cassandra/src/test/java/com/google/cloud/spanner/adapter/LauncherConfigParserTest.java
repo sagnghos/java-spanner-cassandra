@@ -23,6 +23,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
+import com.google.cloud.spanner.adapter.SpannerCqlSessionBuilder.InstanceType;
 import com.google.cloud.spanner.adapter.configs.GlobalClientConfigs;
 import com.google.cloud.spanner.adapter.configs.ListenerConfigs;
 import com.google.cloud.spanner.adapter.configs.SpannerConfigs;
@@ -97,11 +98,13 @@ public class LauncherConfigParserTest {
     assertThat(listenerConfig1.getDatabaseUri())
         .isEqualTo("projects/my-project/instances/my-instance/databases/my-database");
     assertThat(listenerConfig1.getPort()).isEqualTo(9042);
+    assertThat(listenerConfig1.getInstanceType()).isEqualTo(InstanceType.CLOUD);
 
     ListenerConfig listenerConfig2 = config.getListeners().get(1);
     assertThat(listenerConfig2.getDatabaseUri())
         .isEqualTo("projects/my-project/instances/my-instance/databases/my-database-2");
     assertThat(listenerConfig2.getPort()).isEqualTo(9043);
+    assertThat(listenerConfig2.getInstanceType()).isEqualTo(InstanceType.CLOUD);
   }
 
   @Test
@@ -117,6 +120,7 @@ public class LauncherConfigParserTest {
     ListenerConfig listenerConfig1 = config.getListeners().get(0);
     assertThat(listenerConfig1.getSpannerEndpoint()).isEqualTo("localhost:15000");
     assertThat(listenerConfig1.usePlainText()).isTrue();
+    assertThat(listenerConfig1.getInstanceType()).isEqualTo(InstanceType.CLOUD);
 
     ListenerConfig listenerConfig2 = config.getListeners().get(1);
     assertThat(listenerConfig2.getDatabaseUri())
@@ -124,6 +128,7 @@ public class LauncherConfigParserTest {
     assertThat(listenerConfig2.getPort()).isEqualTo(9043);
     assertThat(listenerConfig2.getSpannerEndpoint()).isEqualTo("localhost:15000");
     assertThat(listenerConfig2.usePlainText()).isTrue();
+    assertThat(listenerConfig2.getInstanceType()).isEqualTo(InstanceType.CLOUD);
   }
 
   @Test
@@ -151,6 +156,7 @@ public class LauncherConfigParserTest {
       assertThat(listenerConfig.getNumGrpcChannels()).isEqualTo(8);
       assertThat(listenerConfig.getMaxCommitDelayMillis()).isEqualTo(100);
       assertThat(listenerConfig.isEnableBuiltInMetrics()).isTrue();
+      assertThat(listenerConfig.getInstanceType()).isEqualTo(InstanceType.CLOUD);
       assertThat(config.getHealthCheckConfig()).isNotNull();
       assertThat(config.getHealthCheckConfig().getPort()).isEqualTo(8080);
     }

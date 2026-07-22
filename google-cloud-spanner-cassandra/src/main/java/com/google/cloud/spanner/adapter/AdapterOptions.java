@@ -23,13 +23,9 @@ import com.google.common.base.Strings;
 import java.net.InetAddress;
 import java.time.Duration;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Options for creating the {@link Adapter}. */
 class AdapterOptions {
-  private static final Logger LOG = LoggerFactory.getLogger(AdapterOptions.class);
-
   private static final String DEFAULT_SPANNER_ENDPOINT = "spanner.googleapis.com:443";
   private static final int DEFAULT_NUM_GRPC_CHANNELS = 4;
 

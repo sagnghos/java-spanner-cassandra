@@ -1,5 +1,5 @@
 /*
-Copyright 2025 Google LLC
+Copyright 2026 Google LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,6 +25,13 @@ import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public class AdapterOptionsTest {
+
+  @Test
+  public void testDefaultInstanceType_isCloud() {
+    AdapterOptions options = AdapterOptions.newBuilder().build();
+
+    assertThat(options.getInstanceType()).isEqualTo(InstanceType.CLOUD);
+  }
 
   @Test
   public void testSetSpannerEndpointAndInstanceType_newWay() {
